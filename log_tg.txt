@@ -1,0 +1,6 @@
+CaptchaChallenge: Use other cookies or/and ip address
+CaptchaChallenge: Use other cookies or/and ip address
+A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: chat not found
+A request to the Telegram API was unsuccessful. Error code: 400. Description: Bad Request: chat not found
+Gpt.talk_valid_markdown() got an unexpected keyword argument 'prompts'
+Object of type set is not JSON serializable
