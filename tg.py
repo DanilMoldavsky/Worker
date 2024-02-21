@@ -56,20 +56,22 @@ def set_cookie(message):
     
     
 
-# @bot.message_handler(content_types=['text'])
-# def get_user_text(message):
-#     try:
-#         global TABLE, MEMORY, USERNAME, db, proxy_id
-#         USERNAME = message.from_user.username
-#         ID_USER = message.from_user.id
-#         system_prompt = ''
+@bot.message_handler(content_types=['text'])
+def get_user_text(message):
+    try:
+        global proxy_id
+        USERNAME = message.from_user.username
+        ID_USER = message.from_user.id
+        system_prompt = ''
         
-#         TABLE = USERNAME
-#         db.create_table_if_not(TABLE, MEMORY)
+        TABLE = USERNAME
+        # db.create_table_if_not(TABLE, MEMORY)
         
-#         if len(message.text) == 5 and message.text.isdigit():
-#             proxy_id = proxy_id
-#             bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
+        if len(message.text) == 5 and message.text.isdigit():
+            proxy_id = message.text
+            bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
+    except:
+        pass
             
         
 #         # global table
