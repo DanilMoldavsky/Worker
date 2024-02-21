@@ -1,16 +1,11 @@
 from telebot import types
-from gpt.gpt import Gpt
 from db.sqlite import SQLite
 import telebot
 import requests
 import time
-#! markdown info https://paulradzkov.com/2014/markdown_cheatsheet/ , https://codepen.io/paulradzkov/pen/ZGoLgr , https://core.telegram.org/bots/api#markdownv2-style
 
-# https://habr.com/ru/articles/675404/ - неплохой бот на telebot
-
-bot = telebot.TeleBot('6004800515:AAHaoQJ2kgfofcjrRdQJd1IMMJP8GQKXM_M')
-db = SQLite("db\\dialogs_context.db")
-gpt = Gpt()
+bot = telebot.TeleBot('7014412419:AAFiQ0toKgiXt4zqPlGvWpR4ojwJLfjrPgQ')
+# db = SQLite("db\\dialogs_context.db")
 MEMORY = True
 
 # table = db.table
@@ -31,16 +26,7 @@ def start_message(message):
 
 @bot.message_handler(commands=['myid'])
 def send_id(message):
-    # bot.send_message('@pon4ik_channel', f'{message.channel.id}') # https://t.me/pon4ik_channel
     bot.send_message(message.from_user.id, f'{message.from_user.id}')
-
-
-@bot.message_handler(commands=['memory'])
-def memory_command(message):
-    global MEMORY
-    MEMORY = not MEMORY
-    bot.reply_to(message, "Memory enabled" if MEMORY == True else "Memory disabled")
-
 
 
 @bot.message_handler(content_types=['text'])
@@ -111,14 +97,15 @@ def get_user_text(message):
         bot.send_message(message.from_user.id,  '''Простите, сейчас мой создатель меня дорабатывает, попробуйте позже 
         Если проблема *долго* не решается напишите нашему создателю *@Sad_Manners*
                          ''', parse_mode="Markdown")
-        # db.show_all()
-        
-        # if len(db.rows) > 0 or res[0] != []:
-        #     system_prompt = system_prompt + "To answer the next question these data may be relevant: "
-        #     for i in res:
-        #         if (len(i) > 0):
-        #             system_prompt = system_prompt + i[0]
 
 
 if __name__ == '__main__':
-    bot.polling(none_stop=True)
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print('При работе бота возникла ошибка')
+            print(e)
+            with open('log_tg.txt', 'a', encoding="utf-8") as file:
+                file.write(f'\n{str(e)}')
+            time.sleep(25)
