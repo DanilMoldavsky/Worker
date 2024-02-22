@@ -37,9 +37,9 @@ class SQLite:
     
     def insert(self, table:str="example", ids:str="hello"):
         
-        ids = f'{ids}' if type(ids) == str else print("Промпт должен быть строкой")
+        # ids = f'{ids}' if type(ids) == str else print("Промпт должен быть строкой")
         
-        self.cursor.execute(f"INSERT INTO {table} VALUES (?,)", (ids,))
+        self.cursor.execute(f"INSERT INTO {table} VALUES (?)", (ids,))
         self.connection.commit()
         
     def replace_id(self, table:str="example", id:int=1, post:str="empty"):
@@ -53,7 +53,7 @@ class SQLite:
     def take_all(self, table:str="example"):
         self.execute(f"SELECT * FROM {table}")
         
-        self.ids_out = self.cursor.fetchall()
+        self.ids_out = [ids[0] for ids in self.cursor.fetchall()]
     
     def show_all(self):
         for row in self.rows:
@@ -69,7 +69,7 @@ class SQLite:
         self.connection.commit()
         
         self.take_all(table)
-        print(f'Бд очищена, стол {table} включает {len(self.rows)} постов') 
+        print(f'Бд очищена, стол {table} включает {len(self.ids_out)} постов') 
         
     def update(self, table:str="example", post:str="hello", category="id", id:int=1):
         post = f'{post}' if type(post) == str else print("Пост должна быть строкой")

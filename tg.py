@@ -49,11 +49,16 @@ def set_cookie(message):
     global worker
     bot.send_message(message.from_user.id, 'Процесс сохранения куков запущен на сервере, ожидайте...\nНапоминаю о необходимости администратора при сохранении!!!')
     worker.set_cookie()
+    bot.send_message(message.from_user.id, 'Куки сохранены!')
     
     
-# @bot.message_handler(commands=['takeaccs'])
-# def take_accs(message):
+@bot.message_handler(commands=['takeaccs'])
+def take_accs(message):
+    global worker
     
+    bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
+    worker.take_accs(url_page="97", packs_quantity=1, accs_quantity=2, group_num=1, proxy_id='71790')
+    bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
     
 
 @bot.message_handler(content_types=['text'])
@@ -134,11 +139,11 @@ def get_user_text(message):
 
 
 if __name__ == '__main__':
-    while True:
-        try:
-            bot.polling(none_stop=True)
-        except Exception as e:
-            print('При работе бота возникла ошибка')
-            with open('log_tg.txt', 'a', encoding="utf-8") as file:
-                file.write(f'\n{str(e)}')
-            time.sleep(25)
+    # while True:
+        # try:
+    bot.polling(none_stop=True)
+        # except Exception as e:
+        #     print('При работе бота возникла ошибка')
+        #     with open('log_tg.txt', 'a', encoding="utf-8") as file:
+        #         file.write(f'\n{str(e)}')
+        #     time.sleep(25)
