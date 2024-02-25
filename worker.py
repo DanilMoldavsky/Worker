@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from datetime import date
 from db.sqlite import SQLite
+import requests
 import pandas as pd
 import glob
 import pickle
@@ -14,6 +15,23 @@ db = SQLite("db\\worker.db")
 class UtilitiesWorker:
     def __init__(self):
         pass
+    
+    def _refresh_proxy(self):
+        headers = {
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Pragma': 'no-cache',
+            'Upgrade-Insecure-Requests': '1',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        }
+
+        response = requests.get('http://176.106.53.179:8051/restart/42090/Fvsd45', headers=headers, verify=False)
+        
+        if response.status_code == 400:
+            time.sleep(55)
+            return self._refresh_proxy()
     
     def _load_cookie(self, driver, login: str):
         path = f"cookies\\{login}_cookies"
@@ -197,3 +215,147 @@ class Worker(UtilitiesWorker):
 
         self.__upload_octa()
         
+    def check_accs(self, start:str, end:str):
+        self._driver_init()
+        self.driver.maximize_window()
+        
+        try:
+            self.driver.get('https://nooklz.com/')
+            self._load_cookie(self.driver, 'nooklz')
+            time.sleep(2)
+            
+            url = 'https://nooklz.com/profiles'
+            self.driver.get(url)
+            self.__check_first_loading()
+            
+            self.__group_by_label()
+            self.__open_group_filters()
+            self.__click_select_all()
+            self.__sort_label()
+            amount_groups = self.__take_label(start, end)
+            
+            for i in range(1, amount_groups+1):
+                self._refresh_proxy()
+                chekbox_task = self.driver.find_element(
+                    By.XPATH, f'//div[@class="ag-full-width-container"]/div[{i}]/span/span[3]/div/div/div[2]/input')
+                chekbox_task.click()
+                time.sleep(0.2)
+
+                self.__open_tasks()
+                self.driver.find_element(By.ID, 'check-m-cookies').click()
+                time.sleep(20)
+                
+                self.__check_finish()
+                # прокрутка страницы максимально вверх
+                self.driver.execute_script("window.scrollTo(0, 0);")
+                chekbox_task2 = self.driver.find_element(
+                    By.XPATH, f'//div[@class="ag-full-width-container"]/div[{i}]/span/span[3]/div/div/div[2]/input')
+                time.sleep(2)
+                chekbox_task2.click()
+        except Exception as ex:
+            print('[INFO] Ошибка при чеке аккаунтов')
+            with open('log_worker_chkaccounts.txt', 'a') as f:
+                f.write(f"\n{str(ex)}")
+        else:
+            print('[INFO] Ошибок нет')
+        finally:
+            print("Чек аккаунтов закончен")
+            
+            self.driver.close()
+            self.driver.quit()
+            
+    def __check_first_loading(self):
+        loading = self.driver.find_element(
+            By.XPATH, '/html/body/div[1]/div[3]/div/div/div[1]/div/div/div[2]/div[2]/div/div[2]/div[2]/div[7]')
+        class_loading = loading.get_attribute('class')
+        if class_loading == 'ag-overlay':
+            time.sleep(10)
+            self.__check_first_loading()
+            
+    def __group_by_label(self):
+        self.driver.find_element(
+            By.ID, 'dropdownMenuClickableInside').click()
+        time.sleep(1)
+        self.driver.find_element(By.ID, 'labelCheck').click()
+        time.sleep(1)
+        
+    def __open_group_filters(self):
+        filters = self.driver.find_element(By.CLASS_NAME, 'ag-side-button').click()
+        time.sleep(1)
+        labels = self.driver.find_elements(
+            By.CLASS_NAME, 'ag-filter-toolpanel-group-wrapper')[5].click()
+        time.sleep(1)
+        
+    def __click_select_all(self):
+        checkbox = self.driver.find_element(
+                By.XPATH, f'/html[1]/body[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/div[3]/div[2]/div[2]/div[2]/div[6]/div[1]/div[3]/div[1]/div[2]/div[1]/form[1]/div[1]/div[1]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/input[1]')
+        checkbox.click()
+        time.sleep(0.2)
+        
+    def __sort_label(self):
+        self.driver.find_element(
+            By.XPATH, '//div[@class="ag-column-drop-wrapper"]/div[1]/div[2]/span').click()
+        time.sleep(0.2) 
+        
+    def __take_label(self, start: str, end: str):
+        group_text_list = self.__create_list_text_group()
+
+        start_index, end_index = group_text_list.index(
+            start), group_text_list.index(end)
+        task_list = group_text_list[start_index:end_index+1]
+
+        for task in task_list:
+            index_xpath = group_text_list.index(task)
+            checkbox = self.driver.find_element(
+                By.XPATH, f'//div[@class="ag-virtual-list-container ag-filter-virtual-list-container"]/div[{index_xpath+1}]/div[1]/div[1]/div[2]/input[1]')
+            self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", checkbox)
+            time.sleep(0.3)
+            try:
+                checkbox.click()
+                time.sleep(0.2)
+            except:
+                self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", checkbox)
+                time.sleep(1)
+                checkbox.click()
+                time.sleep(0.2)
+            
+            
+            tree = self.driver.find_element(
+                By.XPATH, f'//div[@class="ag-full-width-container"]/div/span/span[1]/span')
+            self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", tree)
+            time.sleep(0.5)
+            try:
+                tree.click()
+                time.sleep(0.2)
+            except:
+                self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", tree)
+                time.sleep(1)
+                tree.click()
+                time.sleep(0.2)
+
+        return len(task_list)
+
+    def __create_list_text_group(self):
+        # ? Очень полезный способ искать элементы на странице
+        group_divtext_list = self.driver.find_elements(
+            By.XPATH, '//div[@class="ag-set-filter-item-checkbox ag-labeled ag-label-align-right ag-checkbox ag-input-field"]/div[1]')
+
+        group_text_list = [x.text for x in group_divtext_list]
+
+        return group_text_list
+    
+    def __open_tasks(self):
+        self.driver.find_element(By.ID, 'dropdownMenuReference').click()
+        time.sleep(1)
+        
+    def __check_finish(self):
+        try:
+            log = self.driver.find_element(By.ID, 'quill_log').find_element(
+                By.TAG_NAME, 'div').find_elements(By.TAG_NAME, 'p')
+            log_text = [x.text for x in log]
+            if '[-] Task finished' not in log_text:
+                time.sleep(10)
+                self.__check_finish()
+        except:
+            time.sleep(10)
+            self.__check_finish()

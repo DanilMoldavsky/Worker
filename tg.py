@@ -1,6 +1,7 @@
 from telebot import types
 from db.sqlite import SQLite
 from worker import Worker
+import re
 import telebot
 import requests
 import time
@@ -52,19 +53,25 @@ def set_cookie(message):
     bot.send_message(message.from_user.id, 'Куки сохранены!')
     
     
-@bot.message_handler(commands=['takeaccs'])
+@bot.message_handler(commands=['take'])
 def take_accs(message):
-    global worker
-    
     bot.send_message(message.from_user.id, '''Давай соберем аккаунты
-Чтобы я начал пришли мне данные в следующем формате - *НомерСтраницы Кол-воПачек Кол-воАккаунтов НомерГруппы*''', parse_mode="Markdown")
+Чтобы я начал пришли мне данные в следующем формате - *НомерСтраницы Кол-воПачек Кол-воАккаунтов НомерГруппы*
+Пример - *97 1 1 1*''', parse_mode="Markdown")
     
+    
+@bot.message_handler(commands=['check'])
+def check_accs(message):
+    bot.send_message(message.from_user.id, '''Чек аккаунтов
+Чтобы я начал пришли мне данные в следующем формате - *LabelГруппыНачало,LabelГруппыКонец*
+Пример - *01.01 100.1,02.01.30*''', parse_mode="Markdown")
     
 
 @bot.message_handler(content_types=['text'])
 def get_user_text(message):
     try:
-        global proxy_id
+        global proxy_id, worker
+        PATTERN_CHECK = r"\d,\d"
         USERNAME = message.from_user.username
         ID_USER = message.from_user.id
         system_prompt = ''
@@ -84,8 +91,13 @@ def get_user_text(message):
                             accs_quantity=take_list[2], group_num=take_list[3], proxy_id=proxy_id)
             
             bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
+        if re.search(PATTERN_CHECK, message.text):
+            bot.send_message(message.from_user.id, 'Я начал чекать аккаунты, пожалуйста подождите...')
             
-        
+            check_list = message.text.split(',')
+            worker.check_accs(start=check_list[0], end=check_list[1])
+            
+            bot.send_message(message.from_user.id, '*Аккаунты чекнуты!*', parse_mode="Markdown")
             
         
     except:
