@@ -27,10 +27,10 @@ class UtilitiesWorker:
     def _combine_csv(self):  
         list_csv = []
         # list_csv.extend(glob.glob('C:\\Users\\Arbitrazh\\Downloads\\***.csv'))
-        list_csv.extend(glob.glob('C:\\Users\\Develop\\Downloads\\***.csv'))
+        list_csv.extend(glob.glob('C:\\Users\\Kraze\\Downloads\\***.csv'))
         df = pd.concat([pd.read_csv(f) for f in list_csv], ignore_index=True)
         sorted_df = df.sort_values('group', key=lambda x: x.str.split('.').str[-1].astype(int))
-        sorted_df.to_csv("C:\\Users\\Develop\\Downloads\\result.csv", index=False)
+        sorted_df.to_csv("C:\\Users\\Kraze\\Downloads\\result.csv", index=False)
     
     def _driver_selenium(self, pth_chromedriver:str, pth_chrome:str): # C:\Program Files\Google\Chrome\Application\chrome.exe
 
@@ -50,7 +50,7 @@ class UtilitiesWorker:
 
 
 class Worker(UtilitiesWorker):
-    def __init__(self, chromedriver:str='webdriver/chromedriver.exe', chrome:str="C:\\Program Files\\Google\\Chrome\Application\\chrome.exe"):
+    def __init__(self, chromedriver:str='webdriver/chromedriver.exe', chrome:str="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"):
         self.chromedriver = chromedriver
         self.chrome = chrome
     

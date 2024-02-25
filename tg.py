@@ -8,7 +8,7 @@ import time
 bot = telebot.TeleBot('7014412419:AAFiQ0toKgiXt4zqPlGvWpR4ojwJLfjrPgQ')
 # db = SQLite("db\\dialogs_context.db")
 proxy_id = "71790"
-worker = Worker('webdriver/chromedriver.exe', 'D:\Chrome\chrome.exe')
+worker = Worker('webdriver/chromedriver.exe', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
 MEMORY = True
 
 
@@ -56,9 +56,9 @@ def set_cookie(message):
 def take_accs(message):
     global worker
     
-    bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
-    worker.take_accs(url_page="97", packs_quantity=1, accs_quantity=2, group_num=1, proxy_id='71790')
-    bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
+    bot.send_message(message.from_user.id, '''Давай соберем аккаунты
+Чтобы я начал пришли мне данные в следующем формате - *НомерСтраницы Кол-воПачек Кол-воАккаунтов НомерГруппы*''', parse_mode="Markdown")
+    
     
 
 @bot.message_handler(content_types=['text'])
@@ -75,6 +75,19 @@ def get_user_text(message):
         if len(message.text) == 5 and message.text.isdigit():
             proxy_id = message.text
             bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
+            
+        if message.text.replace(' ', '').isdigit():
+            bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
+            
+            take_list = message.text.split(' ')
+            worker.take_accs(url_page=take_list[0], packs_quantity=take_list[1], 
+                            accs_quantity=take_list[2], group_num=take_list[3], proxy_id=proxy_id)
+            
+            bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
+            
+        
+            
+        
     except:
         pass
             
@@ -139,11 +152,11 @@ def get_user_text(message):
 
 
 if __name__ == '__main__':
-    # while True:
-        # try:
-    bot.polling(none_stop=True)
-        # except Exception as e:
-        #     print('При работе бота возникла ошибка')
-        #     with open('log_tg.txt', 'a', encoding="utf-8") as file:
-        #         file.write(f'\n{str(e)}')
-        #     time.sleep(25)
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print('При работе бота возникла ошибка')
+            with open('log_tg.txt', 'a', encoding="utf-8") as file:
+                file.write(f'\n{str(e)}')
+            time.sleep(25)
