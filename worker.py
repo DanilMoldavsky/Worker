@@ -88,7 +88,7 @@ class Worker(UtilitiesWorker):
     
     def _driver_init(self):
         self.driver = self._driver_selenium(self.chromedriver, self.chrome)
-        time.sleep(1)
+        time.sleep(0.5)
         self.driver.maximize_window()
     
     def set_cookie(self):
