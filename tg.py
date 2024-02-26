@@ -7,14 +7,9 @@ import requests
 import time
 
 bot = telebot.TeleBot('7014412419:AAFiQ0toKgiXt4zqPlGvWpR4ojwJLfjrPgQ')
-# db = SQLite("db\\dialogs_context.db")
 proxy_id = "71790"
 worker = Worker('webdriver/chromedriver.exe', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
 MEMORY = True
-
-
-# table = db.table
-# ID_PERS = 0
 
 
 @bot.message_handler(commands=['start'])
@@ -23,10 +18,10 @@ def start_message(message):
     # markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     # full = types.KeyboardButton('Полный скрипт')
     # markup.add(full)#, btn2
-    bot.send_message(message.chat.id, '''👋 Привет!
-💎 С помощью этого бота ты сможешь общаться с чатом *Gpt4*! Бот сохраняет историю диалогов и gpt может вести диалог 🗣
-📲 Чтобы начать просто пришли любой текст не длиннее `4700` символов ✏
-                     ''', parse_mode="Markdown")
+    bot.send_message(message.chat.id, '''👋 *Привет*
+💎 Этот бот создан, чтобы показать, что даже такую работу можно оптимизировать 🗣
+📲 Бот будет работать вместо вас, в данный момент настроен на работу с фейсбуком ✏
+                     ''', parse_mode="MarkdownV2")
 
 
 @bot.message_handler(commands=['myid'])
@@ -65,6 +60,12 @@ def check_accs(message):
     bot.send_message(message.from_user.id, '''Чек аккаунтов
 Чтобы я начал пришли мне данные в следующем формате - *LabelГруппыНачало,LabelГруппыКонец*
 Пример - *01.01 100.1,02.01.30*''', parse_mode="Markdown")
+
+@bot.message_handler(commands=['pages'])
+def create_pages(message):
+    bot.send_message(message.from_user.id, '''Создание фанпейджей
+Чтобы я начал пришли мне данные в следующем формате - *pgLabelГруппыНачало,LabelГруппыКонец*
+Пример - *pg01.01 100.1,02.01.30*''', parse_mode="Markdown")
     
 
 @bot.message_handler(content_types=['text'])
@@ -72,9 +73,9 @@ def get_user_text(message):
     try:
         global proxy_id, worker
         PATTERN_CHECK = r"\d,\d"
+        PATTERN_CREATE = r"^pg"
         USERNAME = message.from_user.username
         ID_USER = message.from_user.id
-        system_prompt = ''
         
         TABLE = USERNAME
         # db.create_table_if_not(TABLE, MEMORY)
@@ -91,14 +92,22 @@ def get_user_text(message):
                             accs_quantity=int(take_list[2]), group_num=int(take_list[3]), proxy_id=proxy_id)
             
             bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
-        if re.search(PATTERN_CHECK, message.text):
+        if re.search(PATTERN_CHECK, message.text) and not re.search(PATTERN_CREATE, message.text.lower()):
             bot.send_message(message.from_user.id, 'Я начал чекать аккаунты, пожалуйста подождите...')
             
             check_list = message.text.split(',')
             worker.check_accs(start=check_list[0], end=check_list[1])
             
             bot.send_message(message.from_user.id, '*Аккаунты чекнуты!*', parse_mode="Markdown")
+        
+        if re.search(PATTERN_CHECK, message.text) and re.search(PATTERN_CREATE, message.text.lower()):
+            bot.send_message(message.from_user.id, 'Я начал создание фанпейджей, пожалуйста подождите...')
             
+            page_list = message.text[2:].split(',')
+            errors = worker.create_pages(start=page_list[0], end=page_list[1])
+            
+            bot.send_message(message.from_user.id, '*Фанпейджи созданы!*', parse_mode="Markdown")
+            bot.send_message(message.from_user.id, errors, parse_mode="Markdown")
         
     except:
         pass

@@ -2,8 +2,8 @@ from seleniumwire import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from datetime import date
-import datetime
 from db.sqlite import SQLite
+import datetime
 import requests
 import pandas as pd
 import glob
@@ -241,8 +241,7 @@ class Worker(UtilitiesWorker):
             self._load_cookie(self.driver, 'nooklz')
             time.sleep(2)
             
-            url = 'https://nooklz.com/profiles'
-            self.driver.get(url)
+            self.driver.get('https://nooklz.com/profiles')
             self.__check_first_loading()
             
             self.__group_by_label()
@@ -376,3 +375,86 @@ class Worker(UtilitiesWorker):
         except:
             time.sleep(10)
             self.__check_finish()
+
+    def create_pages(self, start:str, end:str, fp:int=1):
+        self._driver_init()
+        self.driver.maximize_window()
+        
+        try:
+            self.driver.get('https://nooklz.com/')
+            self._load_cookie(self.driver, 'nooklz')
+            time.sleep(2)
+            
+            self.driver.get('https://nooklz.com/profiles')
+            self.__check_first_loading()
+
+            self.__group_by_label()
+
+            self.__open_group_filters()
+            self.__click_select_all()
+            self.__sort_label()
+            amount_groups = self.__take_label(start, end)
+
+            errors = 0
+            while fp > 0:
+                for i in range(1, amount_groups+1):
+                    self._refresh_proxy()
+                    time.sleep(2)
+                    chekbox_task = self.driver.find_element(
+                        By.XPATH, f'//div[@class="ag-full-width-container"]/div[{i}]/span/span[3]/div/div/div[2]/input')
+                    chekbox_task.click()
+                    time.sleep(0.2)
+
+                    self.__open_tasks()
+
+                    self.driver.find_element(By.ID, 'create-page').click()
+                    time.sleep(2)
+
+                    self.driver.find_element(By.ID, 'random-page-names').click()
+                    time.sleep(0.3)
+                    startpagetask = self.driver.find_element(
+                        By.ID, 'startPageTask')
+                    startpagetask.click()
+
+                    self.__check_finish()
+                    errors += len(self.__check_errors())
+                    self.driver.execute_script("window.scrollTo(0, 0);")
+                    chekbox_task2 = self.driver.find_element(
+                        By.XPATH, f'//div[@class="ag-full-width-container"]/div[{i}]/span/span[3]/div/div/div[2]/input')
+                    time.sleep(2)
+                    chekbox_task2.click()
+                fp -= 1
+            
+        except Exception as ex:
+            print('[INFO] Ошибка при создании фп')
+            with open('log_worker_crtepages.txt', 'a') as f:
+                f.write(f"\n{str(ex)}")
+        else:
+            print('[INFO] Ошибок нет')
+            return f'Количество ошибок при создании фп: *{errors}*'
+        finally:
+            print("Сооздание фп закончено")
+            
+            self.driver.close()
+            self.driver.quit()
+
+    def __check_errors(self):
+        log_color = []
+        
+        log = self.driver.find_element(By.ID, 'quill_log').find_element(
+            By.TAG_NAME, 'div').find_elements(By.TAG_NAME, 'p')
+
+        try:
+            log_color = [x.find_element(By.TAG_NAME, 'strong').get_attribute(
+                'style').replace('color: ', '').replace(';', '') for x in log]
+        except:
+            for el in log:
+                try:
+                    color = el.find_element(By.TAG_NAME, 'strong').get_attribute('style').replace('color: ', '').replace(';', '')
+                    log_color.append(color)
+                except:
+                    continue
+
+        log_error_color = [x for x in log_color if x == 'red']
+
+        return log_error_color
