@@ -87,8 +87,8 @@ def get_user_text(message):
             bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
             
             take_list = message.text.split(' ')
-            worker.take_accs(url_page=take_list[0], packs_quantity=take_list[1], 
-                            accs_quantity=take_list[2], group_num=take_list[3], proxy_id=proxy_id)
+            worker.take_accs(url_page=take_list[0], packs_quantity=int(take_list[1]), 
+                            accs_quantity=int(take_list[2]), group_num=int(take_list[3]), proxy_id=proxy_id)
             
             bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
         if re.search(PATTERN_CHECK, message.text):
