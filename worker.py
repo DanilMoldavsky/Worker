@@ -1,7 +1,7 @@
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from datetime import date #, time, datetime
+from datetime import date
 import datetime
 from db.sqlite import SQLite
 import requests
@@ -88,6 +88,7 @@ class Worker(UtilitiesWorker):
     
     def _driver_init(self):
         self.driver = self._driver_selenium(self.chromedriver, self.chrome)
+        self.driver.maximize_window()
     
     def set_cookie(self):
         self._driver_init()
