@@ -15,7 +15,7 @@ db = SQLite("db\\worker.db")
 class UtilitiesWorker:
     def __init__(self):
         pass
-    
+    #TODO Сделать время обновления прокси, считывать его перед обновлением, продумать логику
     def _refresh_proxy(self):
         headers = {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -84,7 +84,7 @@ class Worker(UtilitiesWorker):
         finally:
             self.driver.close()
             self.driver.quit()
-        
+    #TODO Создать второй лист для инпута в бд, сравнить 1 и 2 список, добавить в бд только разницу
     def take_accs(self, url_page:str="1", packs_quantity:int=1, accs_quantity:int=1, group_num:int=1, proxy_id:str='71790'):
         self._driver_init()
         
