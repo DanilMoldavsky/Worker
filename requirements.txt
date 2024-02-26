@@ -1,0 +1,5 @@
+pyTelegramBotAPI
+selenium-wire
+selenium
+requests
+pandas
