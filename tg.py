@@ -65,6 +65,7 @@ def create_pages(message):
 @bot.message_handler(content_types=['text'])
 def get_user_text(message):
     global proxy_id, worker
+    PATTERN_TAKE = r"\d \d$"
     PATTERN_CHECK = r"\d,\d"
     PATTERN_CREATE = r"^pg"
     
@@ -72,7 +73,7 @@ def get_user_text(message):
         proxy_id = message.text
         bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
         
-    if message.text.replace(' ', '').isdigit():
+    if re.search(PATTERN_TAKE, message.text):
         bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
         
         take_list = message.text.split(' ')
@@ -80,6 +81,7 @@ def get_user_text(message):
                         accs_quantity=int(take_list[2]), group_num=int(take_list[3]), proxy_id=proxy_id)
         
         bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
+
     if re.search(PATTERN_CHECK, message.text) and not re.search(PATTERN_CREATE, message.text.lower()):
         bot.send_message(message.from_user.id, 'Я начал чекать аккаунты, пожалуйста подождите...')
         
