@@ -21,6 +21,12 @@ class UtilitiesWorker:
         self.proxy_diff_seconds = 120
 
     def _refresh_proxy(self):
+        """
+        Refreshes the proxy if necessary. If the proxy has been in use for more than 120 seconds, 
+        it restarts the proxy by sending a request to the specified URL. 
+        If the request returns a status code of 400, it sleeps for 55 seconds and tries to refresh the proxy again.
+        If the proxy has been in use for less than 120 seconds, it sleeps for the remaining time before refreshing the proxy.
+        """
         if self.proxy_out is not None:
             self.proxy_in = datetime.datetime.now()
             self.proxy_diff = self.proxy_in - self.proxy_out
@@ -50,15 +56,32 @@ class UtilitiesWorker:
             return self._refresh_proxy()
         
     def _load_cookie(self, driver, login: str):
+        """
+        Load cookies for the specified login user and add them to the provided driver.
+        
+        :param driver: WebDriver object to which the cookies will be added
+        :param login: str representing the login user
+        """
         path = f"cookies\\{login}_cookies"
         cookies = pickle.load(open(path, "rb"))
         for cookie in cookies:
             driver.add_cookie(cookie)
 
     def _save_cookie(driver, login: str):
+        """
+        Save the cookies for the given login using the provided driver.
+
+        Parameters:
+            driver: WebDriver - The WebDriver object for the browser session.
+            login: str - The login name for which the cookies are being saved.
+        """
         pickle.dump(driver.get_cookies(), open(rf"cookies/{login}_cookies", "wb"))
     #TODO сделать нормальные пути
     def _combine_csv(self):  
+        """
+        Combine multiple CSV files into a single DataFrame and sort the DataFrame by the 'group' column. 
+        Save the sorted DataFrame to a new CSV file.
+        """
         list_csv = []
         list_csv.extend(glob.glob('C:\\Users\\Kraze\\Downloads\\***.csv'))
         df = pd.concat([pd.read_csv(f) for f in list_csv], ignore_index=True)
@@ -66,7 +89,13 @@ class UtilitiesWorker:
         sorted_df.to_csv("C:\\Users\\Kraze\\Downloads\\result.csv", index=False)
     
     def _driver_selenium(self, pth_chromedriver:str, pth_chrome:str):
+        """
+        Initializes and configures a Selenium WebDriver using the provided chromedriver and chrome paths.
 
+        :param pth_chromedriver: str - The path to the chromedriver executable.
+        :param pth_chrome: str - The path to the chrome executable.
+        :return: WebDriver - The configured Selenium WebDriver.
+        """
         service = Service(pth_chromedriver)
 
         options = webdriver.ChromeOptions()
@@ -87,11 +116,18 @@ class Worker(UtilitiesWorker):
         self.chrome = chrome
     
     def _driver_init(self):
+        """
+        Initializes the driver by creating a new selenium driver instance using the specified chromedriver and chrome options. 
+        Delays the execution for 0.5 seconds and maximizes the window of the driver.
+        """
         self.driver = self._driver_selenium(self.chromedriver, self.chrome)
         time.sleep(0.5)
         self.driver.maximize_window()
     
     def set_cookie(self):
+        """
+        Initializes the driver, sets a cookie for 'https://nooklz.com/', and closes the driver.
+        """
         self._driver_init()
         try:
             self.driver.get('https://nooklz.com/')
@@ -102,6 +138,15 @@ class Worker(UtilitiesWorker):
             self.driver.quit()
 
     def take_accs(self, url_page:str="1", packs_quantity:int=1, accs_quantity:int=1, group_num:int=1, proxy_id:str='71790'):
+        """
+        A function to take accounts with specified parameters and handle exceptions.
+        Parameters:
+        - url_page: str, default="1"
+        - packs_quantity: int, default=1
+        - accs_quantity: int, default=1
+        - group_num: int, default=1
+        - proxy_id: str, default='71790'
+        """
         self._driver_init()
         
         try:
@@ -182,7 +227,9 @@ class Worker(UtilitiesWorker):
             self.driver.quit()
     
     def __upload_octa(self):
-
+        """
+        Uploads an octa by clicking various elements on the webpage using the self.driver.
+        """
         self.driver.find_element(By.CLASS_NAME, 'ts-control').click()
         time.sleep(1)
 
@@ -199,6 +246,14 @@ class Worker(UtilitiesWorker):
         time.sleep(20)
         
     def __download_xls(self, group_num:str="1", accs_quantity:int=1, proxy_id:str="1"):
+        """
+        Downloads an XLS file with the specified group number, accounts quantity, and proxy ID.
+
+        Args:
+            group_num (str): The group number (default is "1").
+            accs_quantity (int): The quantity of accounts (default is 1).
+            proxy_id (str): The proxy ID (default is "1").
+        """
         today = date.today().strftime("%d.%m")
         if accs_quantity == 100:
             group_name = today + " 100." + group_num
@@ -233,6 +288,13 @@ class Worker(UtilitiesWorker):
         self.__upload_octa()
         
     def check_accs(self, start:str, end:str):
+        """
+        Check accounts and perform various actions on the web page.
+        
+        Parameters:
+            start (str): The start parameter for the account check.
+            end (str): The end parameter for the account check.
+        """
         self._driver_init()
         self.driver.maximize_window()
         
@@ -281,6 +343,9 @@ class Worker(UtilitiesWorker):
             self.driver.quit()
             
     def __check_first_loading(self):
+        """
+        Check if the page is still loading, and if so, wait for 10 seconds and check again.
+        """
         loading = self.driver.find_element(
             By.XPATH, '/html/body/div[1]/div[3]/div/div/div[1]/div/div/div[2]/div[2]/div/div[2]/div[2]/div[7]')
         class_loading = loading.get_attribute('class')
@@ -289,6 +354,9 @@ class Worker(UtilitiesWorker):
             self.__check_first_loading()
             
     def __group_by_label(self):
+        """
+        This function groups elements by label using the Selenium WebDriver.
+        """
         self.driver.find_element(
             By.ID, 'dropdownMenuClickableInside').click()
         time.sleep(1)
@@ -296,6 +364,9 @@ class Worker(UtilitiesWorker):
         time.sleep(1)
         
     def __open_group_filters(self):
+        """
+        Open group filters and perform actions on specific elements.
+        """
         filters = self.driver.find_element(By.CLASS_NAME, 'ag-side-button').click()
         time.sleep(1)
         labels = self.driver.find_elements(
@@ -303,17 +374,34 @@ class Worker(UtilitiesWorker):
         time.sleep(1)
         
     def __click_select_all(self):
+        """
+        Clicks the 'select all' checkbox in the web page.
+        """
         checkbox = self.driver.find_element(
                 By.XPATH, f'/html[1]/body[1]/div[1]/div[3]/div[1]/div[1]/div[1]/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/div[3]/div[2]/div[2]/div[2]/div[6]/div[1]/div[3]/div[1]/div[2]/div[1]/form[1]/div[1]/div[1]/div[4]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/input[1]')
         checkbox.click()
         time.sleep(0.2)
         
     def __sort_label(self):
+        """
+        Sorts the label using the driver's find_element method and then adds a small delay.
+        """
         self.driver.find_element(
             By.XPATH, '//div[@class="ag-column-drop-wrapper"]/div[1]/div[2]/span').click()
         time.sleep(0.2) 
         
     def __take_label(self, start: str, end: str):
+        """
+        Private method to extract a sublist from a list, interact with checkboxes and trees in a web page,
+        and return the length of the extracted sublist.
+        
+        Parameters:
+            start (str): The start element of the sublist.
+            end (str): The end element of the sublist.
+        
+        Returns:
+            int: The length of the extracted sublist.
+        """
         group_text_list = self.__create_list_text_group()
 
         start_index, end_index = group_text_list.index(
@@ -352,6 +440,9 @@ class Worker(UtilitiesWorker):
         return len(task_list)
 
     def __create_list_text_group(self):
+        """
+        Create a list of text groups by finding elements using XPath, and return the list of text.
+        """
         group_divtext_list = self.driver.find_elements(
             By.XPATH, '//div[@class="ag-set-filter-item-checkbox ag-labeled ag-label-align-right ag-checkbox ag-input-field"]/div[1]')
 
@@ -360,10 +451,16 @@ class Worker(UtilitiesWorker):
         return group_text_list
     
     def __open_tasks(self):
+        """
+        Private method to perform the open tasks, including clicking on a dropdown element and adding a delay for 1 second.
+        """
         self.driver.find_element(By.ID, 'dropdownMenuReference').click()
         time.sleep(1)
         
     def __check_finish(self):
+        """
+        Recursive function to check if the task has finished by searching for a specific log message.
+        """
         try:
             log = self.driver.find_element(By.ID, 'quill_log').find_element(
                 By.TAG_NAME, 'div').find_elements(By.TAG_NAME, 'p')
@@ -376,6 +473,17 @@ class Worker(UtilitiesWorker):
             self.__check_finish()
 
     def create_pages(self, start:str, end:str, fp:int=1):
+        """
+        A function to create pages with given start and end points, and an optional number of iterations.
+
+        Parameters:
+            start (str): The start point for page creation.
+            end (str): The end point for page creation.
+            fp (int, optional): The number of iterations for page creation. Defaults to 1.
+
+        Returns:
+            str: A message indicating the number of errors during page creation.
+        """
         self._driver_init()
         self.driver.maximize_window()
         
@@ -438,6 +546,9 @@ class Worker(UtilitiesWorker):
             self.driver.quit()
 
     def __check_errors(self):
+        """
+        Check for errors in the log and return the quantity of errors.
+        """
         log_color = []
         
         log = self.driver.find_element(By.ID, 'quill_log').find_element(
@@ -454,6 +565,6 @@ class Worker(UtilitiesWorker):
                 except:
                     continue
 
-        log_error_color = [x for x in log_color if x == 'red']
+        log_error_quantity = [x for x in log_color if x == 'red']
 
-        return log_error_color
+        return log_error_quantity
