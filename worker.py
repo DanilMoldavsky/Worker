@@ -98,7 +98,7 @@ class Worker(UtilitiesWorker):
         finally:
             self.driver.close()
             self.driver.quit()
-    #TODO Создать второй лист для инпута в бд, сравнить 1 и 2 список, добавить в бд только разницу
+
     def take_accs(self, url_page:str="1", packs_quantity:int=1, accs_quantity:int=1, group_num:int=1, proxy_id:str='71790'):
         self._driver_init()
         
@@ -115,6 +115,7 @@ class Worker(UtilitiesWorker):
             db.create_table_takeaccs(table="usedaccs")
             db.take_all(table="usedaccs")
             ids_list = db.ids_out
+            new_ids = []
             acc_count = 0
             ostatok = accs_quantity
             while packs_quantity > 0:
@@ -134,12 +135,14 @@ class Worker(UtilitiesWorker):
                             time.sleep(0.35)
                             acc_count += 1
                             ids_list.append(acc_id)
+                            new_ids.append(acc_id)
                         except:
                             self.driver.execute_script(
                                 "arguments[0].click();", checkbox)
                             time.sleep(0.35)
                             acc_count += 1
                             ids_list.append(acc_id)
+                            new_ids.append(acc_id)
 
                     if acc_count == ostatok:
 
@@ -167,8 +170,7 @@ class Worker(UtilitiesWorker):
         else:
             print('[INFO] Ошибок нет')
         finally:
-            db.delete_all(table="usedaccs")
-            for id in ids_list:
+            for id in new_ids:
                 db.insert(table="usedaccs", ids=id)
             
             self._combine_csv()
