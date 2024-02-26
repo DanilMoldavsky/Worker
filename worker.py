@@ -1,7 +1,8 @@
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from datetime import date
+from datetime import date #, time, datetime
+import datetime
 from db.sqlite import SQLite
 import requests
 import pandas as pd
@@ -14,25 +15,40 @@ db = SQLite("db\\worker.db")
 
 class UtilitiesWorker:
     def __init__(self):
-        pass
-    #TODO Сделать время обновления прокси, считывать его перед обновлением, продумать логику
-    def _refresh_proxy(self):
-        headers = {
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-            'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'Pragma': 'no-cache',
-            'Upgrade-Insecure-Requests': '1',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        }
+        self.proxy_in = None
+        self.proxy_out = None
+        self.proxy_diff = None
+        self.proxy_diff_seconds = 120
 
-        response = requests.get('http://176.106.53.179:8051/restart/42090/Fvsd45', headers=headers, verify=False)
+    def _refresh_proxy(self):
+        if self.proxy_out is not None:
+            self.proxy_in = datetime.datetime.now()
+            self.proxy_diff = self.proxy_in - self.proxy_out
+            self.proxy_diff_seconds = self.proxy_diff.total_seconds()
         
-        if response.status_code == 400:
-            time.sleep(55)
+        if self.proxy_diff_seconds is None or self.proxy_diff_seconds >= 120:
+            headers = {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Pragma': 'no-cache',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+            }
+
+            response = requests.get('http://176.106.53.179:8051/restart/42090/Fvsd45', headers=headers, verify=False)
+            
+            if response.status_code == 400:
+                time.sleep(55)
+                return self._refresh_proxy()
+            else:
+                self.proxy_out = datetime.datetime.now()
+        else:
+            sleep = 120 - self.proxy_diff_seconds
+            time.sleep(sleep)
             return self._refresh_proxy()
-    
+        
     def _load_cookie(self, driver, login: str):
         path = f"cookies\\{login}_cookies"
         cookies = pickle.load(open(path, "rb"))
@@ -44,20 +60,17 @@ class UtilitiesWorker:
     #TODO сделать нормальные пути
     def _combine_csv(self):  
         list_csv = []
-        # list_csv.extend(glob.glob('C:\\Users\\Arbitrazh\\Downloads\\***.csv'))
         list_csv.extend(glob.glob('C:\\Users\\Kraze\\Downloads\\***.csv'))
         df = pd.concat([pd.read_csv(f) for f in list_csv], ignore_index=True)
         sorted_df = df.sort_values('group', key=lambda x: x.str.split('.').str[-1].astype(int))
         sorted_df.to_csv("C:\\Users\\Kraze\\Downloads\\result.csv", index=False)
     
-    def _driver_selenium(self, pth_chromedriver:str, pth_chrome:str): # C:\Program Files\Google\Chrome\Application\chrome.exe
+    def _driver_selenium(self, pth_chromedriver:str, pth_chrome:str):
 
         service = Service(pth_chromedriver)
 
         options = webdriver.ChromeOptions()
-        # убирает режим автоматизации, нас не видят как бота
         options.add_argument('--disable-blink-features=AutomationControlled')
-        # Отключает логи, кроме первой строки инициализации:
         options.add_argument('--log-level=3')
         options.add_argument(f"user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
         options.binary_location = pth_chrome
@@ -69,6 +82,7 @@ class UtilitiesWorker:
 
 class Worker(UtilitiesWorker):
     def __init__(self, chromedriver:str='webdriver/chromedriver.exe', chrome:str="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"):
+        super().__init__()
         self.chromedriver = chromedriver
         self.chrome = chrome
     
