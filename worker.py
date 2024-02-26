@@ -220,11 +220,10 @@ class Worker(UtilitiesWorker):
         proxy_input.clear()
         proxy_input.send_keys(proxy_id)
         time.sleep(1)
-        # убираем чек бокс check_updates
         self.driver.find_element(
             By.CLASS_NAME, 'form-check').find_element(By.NAME, 'check_updates').click()
         time.sleep(1)
-        # кликаем выгрузить
+
         self.driver.find_element(By.ID, 'submit-modal-exportNooklz').click()
         time.sleep(2)
         self.driver.find_element(By.CLASS_NAME, 'btn-close').click()
@@ -262,7 +261,7 @@ class Worker(UtilitiesWorker):
                 time.sleep(20)
                 
                 self.__check_finish()
-                # прокрутка страницы максимально вверх
+
                 self.driver.execute_script("window.scrollTo(0, 0);")
                 chekbox_task2 = self.driver.find_element(
                     By.XPATH, f'//div[@class="ag-full-width-container"]/div[{i}]/span/span[3]/div/div/div[2]/input')
@@ -352,7 +351,6 @@ class Worker(UtilitiesWorker):
         return len(task_list)
 
     def __create_list_text_group(self):
-        # ? Очень полезный способ искать элементы на странице
         group_divtext_list = self.driver.find_elements(
             By.XPATH, '//div[@class="ag-set-filter-item-checkbox ag-labeled ag-label-align-right ag-checkbox ag-input-field"]/div[1]')
 

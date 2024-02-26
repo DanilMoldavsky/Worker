@@ -6,15 +6,11 @@ import time
 bot = telebot.TeleBot('7014412419:AAFiQ0toKgiXt4zqPlGvWpR4ojwJLfjrPgQ')
 proxy_id = "71790"
 worker = Worker('webdriver/chromedriver.exe', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
-MEMORY = True
 
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    
-    # markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    # full = types.KeyboardButton('Полный скрипт')
-    # markup.add(full)#, btn2
+
     bot.send_message(message.chat.id, '''👋 *Привет*
 💎 Этот бот создан, чтобы показать, что даже такую работу можно оптимизировать 🗣
 📲 Бот будет работать вместо вас, в данный момент настроен на работу с фейсбуком ✏
@@ -68,42 +64,38 @@ def create_pages(message):
 
 @bot.message_handler(content_types=['text'])
 def get_user_text(message):
-    try:
-        global proxy_id, worker
-        PATTERN_CHECK = r"\d,\d"
-        PATTERN_CREATE = r"^pg"
+    global proxy_id, worker
+    PATTERN_CHECK = r"\d,\d"
+    PATTERN_CREATE = r"^pg"
+    
+    if len(message.text) == 5 and message.text.isdigit():
+        proxy_id = message.text
+        bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
         
-        if len(message.text) == 5 and message.text.isdigit():
-            proxy_id = message.text
-            bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
-            
-        if message.text.replace(' ', '').isdigit():
-            bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
-            
-            take_list = message.text.split(' ')
-            worker.take_accs(url_page=take_list[0], packs_quantity=int(take_list[1]), 
-                            accs_quantity=int(take_list[2]), group_num=int(take_list[3]), proxy_id=proxy_id)
-            
-            bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
-        if re.search(PATTERN_CHECK, message.text) and not re.search(PATTERN_CREATE, message.text.lower()):
-            bot.send_message(message.from_user.id, 'Я начал чекать аккаунты, пожалуйста подождите...')
-            
-            check_list = message.text.split(',')
-            worker.check_accs(start=check_list[0], end=check_list[1])
-            
-            bot.send_message(message.from_user.id, '*Аккаунты чекнуты!*', parse_mode="Markdown")
+    if message.text.replace(' ', '').isdigit():
+        bot.send_message(message.from_user.id, 'Я начал собирать аккаунты, пожалуйста подождите...')
         
-        if re.search(PATTERN_CHECK, message.text) and re.search(PATTERN_CREATE, message.text.lower()):
-            bot.send_message(message.from_user.id, 'Я начал создание фанпейджей, пожалуйста подождите...')
-            
-            page_list = message.text[2:].split(',')
-            errors = worker.create_pages(start=page_list[0], end=page_list[1])
-            
-            bot.send_message(message.from_user.id, '*Фанпейджи созданы!*', parse_mode="Markdown")
-            bot.send_message(message.from_user.id, errors, parse_mode="Markdown")
+        take_list = message.text.split(' ')
+        worker.take_accs(url_page=take_list[0], packs_quantity=int(take_list[1]), 
+                        accs_quantity=int(take_list[2]), group_num=int(take_list[3]), proxy_id=proxy_id)
         
-    except:
-        pass
+        bot.send_message(message.from_user.id, '*Аккаунты собраны!*', parse_mode="Markdown")
+    if re.search(PATTERN_CHECK, message.text) and not re.search(PATTERN_CREATE, message.text.lower()):
+        bot.send_message(message.from_user.id, 'Я начал чекать аккаунты, пожалуйста подождите...')
+        
+        check_list = message.text.split(',')
+        worker.check_accs(start=check_list[0], end=check_list[1])
+        
+        bot.send_message(message.from_user.id, '*Аккаунты чекнуты!*', parse_mode="Markdown")
+    
+    if re.search(PATTERN_CHECK, message.text) and re.search(PATTERN_CREATE, message.text.lower()):
+        bot.send_message(message.from_user.id, 'Я начал создание фанпейджей, пожалуйста подождите...')
+        
+        page_list = message.text[2:].split(',')
+        errors = worker.create_pages(start=page_list[0], end=page_list[1])
+        
+        bot.send_message(message.from_user.id, '*Фанпейджи созданы!*', parse_mode="Markdown")
+        bot.send_message(message.from_user.id, errors, parse_mode="Markdown")
 
 
 if __name__ == '__main__':
