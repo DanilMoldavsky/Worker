@@ -104,7 +104,7 @@ def get_user_text(message):
     PATTERN_CHECK = r"\d,\d"
     PATTERN_CREATE = r"^pg"
     
-    if len(message.text) == 6 and message.text.isdigit():
+    if len(message.text) == 5 and message.text.isdigit():
         proxy_id = message.text
         bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
         

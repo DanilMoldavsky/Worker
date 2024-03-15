@@ -75,7 +75,7 @@ class UtilitiesWorker:
         for cookie in cookies:
             driver.add_cookie(cookie)
 
-    def _save_cookie(driver, login: str):
+    def _save_cookie(self, login: str):
         """
         Save the cookies for the given login using the provided driver.
 
@@ -83,7 +83,7 @@ class UtilitiesWorker:
             driver: WebDriver - The WebDriver object for the browser session.
             login: str - The login name for which the cookies are being saved.
         """
-        pickle.dump(driver.get_cookies(), open(rf"cookies/{login}_cookies", "wb"))
+        pickle.dump(self.driver.get_cookies(), open(rf"cookies/{login}_cookies", "wb"))
     #TODO сделать нормальные пути
     def _combine_csv(self):  
         """
@@ -140,7 +140,7 @@ class Worker(UtilitiesWorker):
         try:
             self.driver.get('https://nooklz.com/')
             time.sleep(40)
-            self._save_cookie(self.driver, 'nooklz')
+            self._save_cookie('nooklz')
         finally:
             self.driver.close()
             self.driver.quit()
