@@ -4,7 +4,7 @@ import telebot
 import time
 
 bot = telebot.TeleBot('7014412419:AAFiQ0toKgiXt4zqPlGvWpR4ojwJLfjrPgQ')
-proxy_id = "71790"
+proxy_id = "408715"
 worker = Worker('webdriver/chromedriver.exe', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
 
 
@@ -104,7 +104,7 @@ def get_user_text(message):
     PATTERN_CHECK = r"\d,\d"
     PATTERN_CREATE = r"^pg"
     
-    if len(message.text) == 5 and message.text.isdigit():
+    if len(message.text) == 6 and message.text.isdigit():
         proxy_id = message.text
         bot.send_message(message.from_user.id, f'Новый айди прокси: {proxy_id}')
         
