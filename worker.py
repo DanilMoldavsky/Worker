@@ -51,7 +51,6 @@ class UtilitiesWorker:
             }
 
             response = requests.get('https://i.fxdx.in/api-rt/changeip/RG683v9gUF/x6WKAGMSTENK7', headers=headers)
-            print(response.status_code)
             
             if response.status_code == 429:
                 time.sleep(15)
