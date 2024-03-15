@@ -24,34 +24,42 @@ class UtilitiesWorker:
         """
         Refreshes the proxy if necessary. If the proxy has been in use for more than 120 seconds, 
         it restarts the proxy by sending a request to the specified URL. 
-        If the request returns a status code of 400, it sleeps for 55 seconds and tries to refresh the proxy again.
-        If the proxy has been in use for less than 120 seconds, it sleeps for the remaining time before refreshing the proxy.
+        If the request returns a status code of 429, it sleeps for 15 seconds and tries to refresh the proxy again.
+        If the proxy has been in use for less than 20 seconds, it sleeps for the remaining time before refreshing the proxy.
         """
         if self.proxy_out is not None:
             self.proxy_in = datetime.datetime.now()
             self.proxy_diff = self.proxy_in - self.proxy_out
             self.proxy_diff_seconds = self.proxy_diff.total_seconds()
         
-        if self.proxy_diff_seconds is None or self.proxy_diff_seconds >= 120:
+        if self.proxy_diff_seconds is None or self.proxy_diff_seconds >= 20:
+
             headers = {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-                'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'Pragma': 'no-cache',
-                'Upgrade-Insecure-Requests': '1',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                'authority': 'i.fxdx.in',
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                'cache-control': 'max-age=0',
+                'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"',
+                'sec-fetch-dest': 'document',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-site': 'none',
+                'sec-fetch-user': '?1',
+                'upgrade-insecure-requests': '1',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             }
 
-            response = requests.get('http://176.106.53.179:8051/restart/42090/Fvsd45', headers=headers, verify=False)
+            response = requests.get('https://i.fxdx.in/api-rt/changeip/RG683v9gUF/x6WKAGMSTENK7', headers=headers)
+            print(response.status_code)
             
-            if response.status_code == 400:
-                time.sleep(55)
+            if response.status_code == 429:
+                time.sleep(15)
                 return self._refresh_proxy()
             else:
                 self.proxy_out = datetime.datetime.now()
         else:
-            sleep = 120 - self.proxy_diff_seconds
+            sleep = 20 - self.proxy_diff_seconds
             time.sleep(sleep)
             return self._refresh_proxy()
         
