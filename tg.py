@@ -1,11 +1,12 @@
 from worker import Worker
+import conf
 import re
 import telebot
 import time
 
-bot = telebot.TeleBot('7014412419:AAFiQ0toKgiXt4zqPlGvWpR4ojwJLfjrPgQ')
-proxy_id = "408715"
-worker = Worker('webdriver/chromedriver.exe', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
+bot = telebot.TeleBot(conf.TOKEN)
+proxy_id = conf.PROXY_ID
+worker = Worker(conf.DRIVER_CHROME, conf.CHROME)
 
 
 @bot.message_handler(commands=['start'])
