@@ -353,12 +353,15 @@ class Worker(UtilitiesWorker):
         """
         Check if the page is still loading, and if so, wait for 10 seconds and check again.
         """
-        loading = self.driver.find_element(
-            By.XPATH, '/html/body/div[1]/div[3]/div/div/div[1]/div/div/div[2]/div[2]/div/div[2]/div[2]/div[7]')
-        class_loading = loading.get_attribute('class')
-        if class_loading == 'ag-overlay':
-            time.sleep(10)
-            self.__check_first_loading()
+        try:
+            loading = self.driver.find_element(
+                By.XPATH, '/html/body/div[1]/div[3]/div/div/div[1]/div/div/div[2]/div[2]/div/div[2]/div[2]/div[7]')
+            class_loading = loading.get_attribute('class')
+            if class_loading == 'ag-overlay':
+                time.sleep(10)
+                self.__check_first_loading()
+        except:
+            pass
             
     def __group_by_label(self):
         """
