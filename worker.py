@@ -579,6 +579,28 @@ class Worker(Utilities):
         log_error_quantity = [x for x in log_color if x == 'red']
 
         return log_error_quantity
+    
+    
+    def __open_filters_adaccs(self):
+        """
+        Open group filters and perform actions on specific elements.
+        """
+        filters = self.driver.find_element(By.CLASS_NAME, 'ag-side-button').click()
+        time.sleep(1)
+        labels = self.driver.find_elements(
+            By.CLASS_NAME, 'ag-filter-toolpanel-group-wrapper')[-1].click()
+        time.sleep(1)
+        
+    
+    def __click_selectall_adaccs(self):
+        """
+        Clicks the 'select all' checkbox in the web page.
+        """
+        checkbox = self.driver.find_element(
+                By.XPATH, f'/html/body/div[1]/div[3]/div/div/div[1]/div/div/div[2]/div[2]/div/div[2]/div[3]/div[2]/div[2]/div[2]/div[11]/div/div[3]/div/div[2]/div/form/div/div/div[4]/div/div[2]/div[1]/div/div/div[2]/input')
+        checkbox.click()
+        time.sleep(0.2)
+
 
     def link_cards_once(self, target:str):
         
@@ -586,7 +608,15 @@ class Worker(Utilities):
         self.driver.maximize_window()
         
         try:
-            pass
+            self.__start_nklz()
+            
+            self.driver.get('https://nooklz.com/acts')
+            self.__check_first_loading()
+            
+            self.__group_by_label()
+            
+            self.__open_filters_adaccs()
+            self.__click_selectall_adaccs()
         
         except Exception as ex:
             print('[INFO] Ошибка при Линковки карт')
@@ -594,10 +624,14 @@ class Worker(Utilities):
                 f.write(f"\n{str(ex)}")
         else:
             print('[INFO] Ошибок нет')
-            return f'Количество ошибок при привязке карт: *{errors}*'
+            # return f'Количество ошибок при привязке карт: *{errors}*'
         finally:
             print("Линковка карт закончена")
             
             self.driver.close()
             self.driver.quit()
             
+if __name__ == '__main__':
+    worker = Worker()
+    worker.link_cards_once('huy')
+    
