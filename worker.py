@@ -13,7 +13,7 @@ import time
 db = SQLite("db\\worker.db")
 
 
-class UtilitiesWorker:
+class Utilities:
     def __init__(self):
         self.proxy_in = None
         self.proxy_out = None
@@ -116,7 +116,7 @@ class UtilitiesWorker:
         return driver
 
 
-class Worker(UtilitiesWorker):
+class Worker(Utilities):
     def __init__(self, chromedriver:str='webdriver/chromedriver.exe', chrome:str="C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"):
         super().__init__()
         self.chromedriver = chromedriver
