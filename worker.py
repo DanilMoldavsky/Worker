@@ -131,6 +131,11 @@ class Worker(Utilities):
         time.sleep(0.5)
         self.driver.maximize_window()
     
+    def __start_nklz(self):
+        self.driver.get('https://nooklz.com/')
+        self._load_cookie(self.driver, 'nooklz')
+        time.sleep(2)
+
     def set_cookie(self):
         """
         Initializes the driver, sets a cookie for 'https://nooklz.com/', and closes the driver.
@@ -306,9 +311,7 @@ class Worker(Utilities):
         self.driver.maximize_window()
         
         try:
-            self.driver.get('https://nooklz.com/')
-            self._load_cookie(self.driver, 'nooklz')
-            time.sleep(2)
+            self.__start_nklz()
             
             self.driver.get('https://nooklz.com/profiles')
             self.__check_first_loading()
@@ -498,9 +501,7 @@ class Worker(Utilities):
         self.driver.maximize_window()
         
         try:
-            self.driver.get('https://nooklz.com/')
-            self._load_cookie(self.driver, 'nooklz')
-            time.sleep(2)
+            self.__start_nklz()
             
             self.driver.get('https://nooklz.com/profiles')
             self.__check_first_loading()
@@ -578,3 +579,25 @@ class Worker(Utilities):
         log_error_quantity = [x for x in log_color if x == 'red']
 
         return log_error_quantity
+
+    def link_cards_once(self, target:str):
+        
+        self._driver_init()
+        self.driver.maximize_window()
+        
+        try:
+            pass
+        
+        except Exception as ex:
+            print('[INFO] Ошибка при Линковки карт')
+            with open('log_worker_lnkcards.txt', 'a') as f:
+                f.write(f"\n{str(ex)}")
+        else:
+            print('[INFO] Ошибок нет')
+            return f'Количество ошибок при привязке карт: *{errors}*'
+        finally:
+            print("Линковка карт закончена")
+            
+            self.driver.close()
+            self.driver.quit()
+            
