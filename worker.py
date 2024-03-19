@@ -317,10 +317,10 @@ class Worker(Utilities):
             self._check_first_loading()
             
             self._group_by_label()
-            self.__open_group_filters()
-            self.__click_select_all()
+            self._open_filters()
+            self._click_selectall()
             self.__sort_label()
-            amount_groups = self.__take_label(start, end)
+            amount_groups = self.__take_labels(start, end)
             
             for i in range(1, amount_groups+1):
                 self._refresh_proxy()
@@ -376,7 +376,7 @@ class Worker(Utilities):
         self.driver.find_element(By.ID, 'labelCheck').click()
         time.sleep(1)
         
-    def __open_group_filters(self):
+    def _open_filters(self):
         """
         Open group filters and perform actions on specific elements.
         """
@@ -386,7 +386,7 @@ class Worker(Utilities):
             By.CLASS_NAME, 'ag-filter-toolpanel-group-wrapper')[5].click()
         time.sleep(1)
         
-    def __click_select_all(self):
+    def _click_selectall(self):
         """
         Clicks the 'select all' checkbox in the web page.
         """
@@ -403,7 +403,7 @@ class Worker(Utilities):
             By.XPATH, '//div[@class="ag-column-drop-wrapper"]/div[1]/div[2]/span').click()
         time.sleep(0.2) 
         
-    def __take_label(self, start: str, end: str):
+    def __take_labels(self, start: str, end: str) -> int:
         """
         Private method to extract a sublist from a list, interact with checkboxes and trees in a web page,
         and return the length of the extracted sublist.
@@ -452,7 +452,7 @@ class Worker(Utilities):
 
         return len(task_list)
 
-    def __create_list_text_group(self):
+    def __create_list_text_group(self) -> list[str]:
         """
         Create a list of text groups by finding elements using XPath, and return the list of text.
         """
@@ -508,10 +508,10 @@ class Worker(Utilities):
 
             self._group_by_label()
 
-            self.__open_group_filters()
-            self.__click_select_all()
+            self._open_filters()
+            self._click_selectall()
             self.__sort_label()
-            amount_groups = self.__take_label(start, end)
+            amount_groups = self.__take_labels(start, end)
 
             errors = 0
             while fp > 0:
@@ -605,6 +605,23 @@ class WorkerAD(Worker):
         checkbox.click()
         time.sleep(0.2)
 
+    def __take_label(self, target:str):
+        divs_labels = self.driver.find_element(By.XPATH, '//*[@id="actsGrid"]/div/div[2]/div[3]/div[2]/div[2]/div[2]/div[11]/div/div[3]/div/div[2]/div/form/div/div/div[4]/div/div[2]').find_elements(By.XPATH, 'div')
+        for el in divs_labels:
+            texto = el.find_element(By.XPATH, 'div/div/div[1]/div').text
+            if target in texto:
+                checkbox = el.find_element(By.XPATH, 'div/div/div[2]/input')
+                self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", checkbox)
+                time.sleep(0.3)
+                try:
+                    checkbox.click()
+                    time.sleep(0.2)
+                except:
+                    self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", checkbox)
+                    time.sleep(1)
+                    checkbox.click()
+                    time.sleep(0.2)
+                break
 
     def link_cards_once(self, target:str):
         
@@ -621,7 +638,18 @@ class WorkerAD(Worker):
             
             self._open_filters()
             self._click_selectall()
-        
+
+            self.__take_label(target)
+
+            errors = 0
+            self._refresh_proxy()
+            time.sleep(2)
+            
+            chekbox_task = self.driver.find_element(
+                By.XPATH, f'//div[@class="ag-full-width-container"]/div/span/span[3]/div/div/div[2]/input')
+            chekbox_task.click()
+            time.sleep(5.2)
+            
         except Exception as ex:
             print('[INFO] Ошибка при Линковки карт')
             with open('log_worker_lnkcards.txt', 'a') as f:
@@ -637,4 +665,4 @@ class WorkerAD(Worker):
 
 if __name__ == '__main__':
     workerad = WorkerAD()
-    workerad.link_cards_once('huy')
+    workerad.link_cards_once('20.02 100.4')
