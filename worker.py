@@ -621,6 +621,19 @@ class WorkerAD(Worker):
                     time.sleep(1)
                     checkbox.click()
                     time.sleep(0.2)
+                    
+                tree = self.driver.find_element(
+                    By.XPATH, f'//div[@class="ag-full-width-container"]/div/span/span[1]/span')
+                self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", tree)
+                time.sleep(0.5)
+                try:
+                    tree.click()
+                    time.sleep(0.2)
+                except:
+                    self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", tree)
+                    time.sleep(1)
+                    tree.click()
+                    time.sleep(0.2)
                 break
 
     def link_cards_once(self, target:str):
@@ -648,7 +661,7 @@ class WorkerAD(Worker):
             chekbox_task = self.driver.find_element(
                 By.XPATH, f'//div[@class="ag-full-width-container"]/div/span/span[3]/div/div/div[2]/input')
             chekbox_task.click()
-            time.sleep(5.2)
+            time.sleep(0.2)
             
         except Exception as ex:
             print('[INFO] Ошибка при Линковки карт')
