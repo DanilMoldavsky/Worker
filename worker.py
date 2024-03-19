@@ -131,7 +131,7 @@ class Worker(Utilities):
         time.sleep(0.5)
         self.driver.maximize_window()
     
-    def __start_nklz(self):
+    def _start_nklz(self):
         self.driver.get('https://nooklz.com/')
         self._load_cookie(self.driver, 'nooklz')
         time.sleep(2)
@@ -311,12 +311,12 @@ class Worker(Utilities):
         self.driver.maximize_window()
         
         try:
-            self.__start_nklz()
+            self._start_nklz()
             
             self.driver.get('https://nooklz.com/profiles')
-            self.__check_first_loading()
+            self._check_first_loading()
             
-            self.__group_by_label()
+            self._group_by_label()
             self.__open_group_filters()
             self.__click_select_all()
             self.__sort_label()
@@ -352,7 +352,7 @@ class Worker(Utilities):
             self.driver.close()
             self.driver.quit()
             
-    def __check_first_loading(self):
+    def _check_first_loading(self):
         """
         Check if the page is still loading, and if so, wait for 10 seconds and check again.
         """
@@ -362,11 +362,11 @@ class Worker(Utilities):
             class_loading = loading.get_attribute('class')
             if class_loading == 'ag-overlay':
                 time.sleep(10)
-                self.__check_first_loading()
+                self._check_first_loading()
         except:
             pass
             
-    def __group_by_label(self):
+    def _group_by_label(self):
         """
         This function groups elements by label using the Selenium WebDriver.
         """
@@ -501,12 +501,12 @@ class Worker(Utilities):
         self.driver.maximize_window()
         
         try:
-            self.__start_nklz()
+            self._start_nklz()
             
             self.driver.get('https://nooklz.com/profiles')
-            self.__check_first_loading()
+            self._check_first_loading()
 
-            self.__group_by_label()
+            self._group_by_label()
 
             self.__open_group_filters()
             self.__click_select_all()
@@ -581,7 +581,11 @@ class Worker(Utilities):
         return log_error_quantity
     
     
-    def __open_filters_adaccs(self):
+
+
+
+class WorkerAD(Worker):
+    def _open_filters(self):
         """
         Open group filters and perform actions on specific elements.
         """
@@ -592,7 +596,7 @@ class Worker(Utilities):
         time.sleep(1)
         
     
-    def __click_selectall_adaccs(self):
+    def _click_selectall(self):
         """
         Clicks the 'select all' checkbox in the web page.
         """
@@ -608,15 +612,15 @@ class Worker(Utilities):
         self.driver.maximize_window()
         
         try:
-            self.__start_nklz()
+            self._start_nklz()
             
             self.driver.get('https://nooklz.com/acts')
-            self.__check_first_loading()
+            self._check_first_loading()
             
-            self.__group_by_label()
+            self._group_by_label()
             
-            self.__open_filters_adaccs()
-            self.__click_selectall_adaccs()
+            self._open_filters()
+            self._click_selectall()
         
         except Exception as ex:
             print('[INFO] Ошибка при Линковки карт')
@@ -630,8 +634,7 @@ class Worker(Utilities):
             
             self.driver.close()
             self.driver.quit()
-            
+
 if __name__ == '__main__':
-    worker = Worker()
-    worker.link_cards_once('huy')
-    
+    workerad = WorkerAD()
+    workerad.link_cards_once('huy')
