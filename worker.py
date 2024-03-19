@@ -1,6 +1,7 @@
 from seleniumwire import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from datetime import date
 from db.sqlite import SQLite
 import datetime
@@ -329,7 +330,7 @@ class Worker(Utilities):
                 chekbox_task.click()
                 time.sleep(0.2)
 
-                self.__open_tasks()
+                self._open_tasks()
                 self.driver.find_element(By.ID, 'check-m-cookies').click()
                 time.sleep(20)
                 
@@ -463,7 +464,7 @@ class Worker(Utilities):
 
         return group_text_list
     
-    def __open_tasks(self):
+    def _open_tasks(self):
         """
         Private method to perform the open tasks, including clicking on a dropdown element and adding a delay for 1 second.
         """
@@ -523,7 +524,7 @@ class Worker(Utilities):
                     chekbox_task.click()
                     time.sleep(0.2)
 
-                    self.__open_tasks()
+                    self._open_tasks()
 
                     self.driver.find_element(By.ID, 'create-page').click()
                     time.sleep(2)
@@ -662,6 +663,16 @@ class WorkerAD(Worker):
                 By.XPATH, f'//div[@class="ag-full-width-container"]/div/span/span[3]/div/div/div[2]/input')
             chekbox_task.click()
             time.sleep(0.2)
+            
+            self._open_tasks()
+            
+            
+            cards = self.driver.find_element(By.XPATH, '//*[@id="btgrp"]/div[1]/ul/li[1]')
+            actions = ActionChains(self.driver)
+            actions.move_to_element(cards).perform()
+            time.sleep(0.3)
+            
+            self.driver.find_element(By.ID, 'link-card-act').click()
             
         except Exception as ex:
             print('[INFO] Ошибка при Линковки карт')
