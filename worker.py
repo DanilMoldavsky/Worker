@@ -580,8 +580,48 @@ class Worker(Utilities):
         log_error_quantity = [x for x in log_color if x == 'red']
 
         return log_error_quantity
-    
-    
+
+    def upload_accs(self, path:str):
+        """
+        A function to upload accounts using the specified path.
+
+        Parameters:
+        path (str): The path to the file to upload.
+
+        """
+        
+        self._driver_init()
+        self.driver.maximize_window()
+        
+        try:
+            self._start_nklz()
+            
+            self.driver.get('https://nooklz.com/profiles')
+            self._check_first_loading()
+
+            self.driver.find_element(By.XPATH, '//*[@id="layout-wrapper"]/div[3]/div/div/div[1]/div/div/div[1]/div/div/button').click()
+            time.sleep(0.5)
+            
+            self.driver.find_element(By.ID, 'profile-tab-center').click()
+            time.sleep(0.3)
+            
+            file_inputs = self.driver.find_elements(By.CSS_SELECTOR, 'input[type="file"]')
+            file_inputs[-1].send_keys(path)
+            time.sleep(5)
+            
+            self.driver.find_element(By.ID, 'importMultipleAccounts').click()
+            time.sleep(1)
+        except Exception as ex:
+            print('[ERROR] Ошибка при выгрузке аккаунтов')
+            with open('log_worker_uploadaccs.txt', 'a') as f:
+                f.write(f"\n{str(ex)}")
+        else:
+            print('[INFO] Ошибок нет')
+        finally:
+            print("[INFO] Загрузка аккаунтов закончена")
+            
+            self.driver.close()
+            self.driver.quit()
 
 
 
@@ -673,9 +713,12 @@ class WorkerAD(Worker):
             time.sleep(0.3)
             
             self.driver.find_element(By.ID, 'link-card-act').click()
+            time.sleep(0.5)
+            
+            cards_input = self.driver.find_element(By.ID, 'cards-input')
             
         except Exception as ex:
-            print('[INFO] Ошибка при Линковки карт')
+            print('[ERROR] Ошибка при Линковки карт')
             with open('log_worker_lnkcards.txt', 'a') as f:
                 f.write(f"\n{str(ex)}")
         else:

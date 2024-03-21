@@ -95,6 +95,15 @@ def create_pages(message):
 Пример - *pg01.01 100.1,02.01.30*''', parse_mode="Markdown")
     
 
+@bot.message_handler(commands=['uploadaccs'])
+def upload_accs(message):
+    """
+    A function to handle the 'uploadaccs' command and upload accounts to the bot's database.
+    """
+    bot.send_message(message.from_user.id, 'Загрузка аккаунтов началась...')
+    worker.upload_accs(conf.PATH_ACCS)
+    bot.send_message(message.from_user.id, 'Загрузка аккаунтов завершена!')
+
 @bot.message_handler(content_types=['text'])
 def get_user_text(message):
     """
