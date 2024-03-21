@@ -677,7 +677,7 @@ class WorkerAD(Worker):
                     time.sleep(0.2)
                 break
 
-    def link_cards_once(self, target:str):
+    def link_cards_once(self, target:str, cards:list):
         
         self._driver_init()
         self.driver.maximize_window()
@@ -707,15 +707,69 @@ class WorkerAD(Worker):
             self._open_tasks()
             
             
-            cards = self.driver.find_element(By.XPATH, '//*[@id="btgrp"]/div[1]/ul/li[1]')
+            cards_task = self.driver.find_element(By.XPATH, '//*[@id="btgrp"]/div[1]/ul/li[1]')
             actions = ActionChains(self.driver)
-            actions.move_to_element(cards).perform()
+            actions.move_to_element(cards_task).perform()
             time.sleep(0.3)
             
             self.driver.find_element(By.ID, 'link-card-act').click()
             time.sleep(0.5)
             
+            string_cards = self.__cards_to_string(cards)
+            
             cards_input = self.driver.find_element(By.ID, 'cards-input')
+            cards_input.send_keys(string_cards)
+            
+            self.driver.find_element(By.ID, 'select2-link_type-container').click()
+            time.sleep(0.2)
+            
+            mobile_method = self.driver.find_element(By.XPATH, '/html/body/span/span/span[2]/ul/li[3]')
+            mobile_method.click()
+            time.sleep(0.2)
+            
+            ivalid_card = self.driver.find_element(By.ID, 'invalidCardCheckChecked')
+            ivalid_card.click()
+            time.sleep(0.2)
+            
+            primary_card = self.driver.find_element(By.ID, 'primaryCheckChecked')
+            primary_card.click()
+            time.sleep(0.2)
+            
+            verify_3ds = self.driver.find_element(By.ID, 'verify3dsCheckChecked')
+            verify_3ds.click()
+            time.sleep(0.2)
+            
+            currency = self.driver.find_element(By.ID, 'currencyCheckChecked')
+            currency.click()
+            time.sleep(0.2)
+            
+            self.driver.find_element(By.ID, 'select2-currency_select-container').click()
+            time.sleep(0.2)
+            
+            eur = self.driver.find_element(By.XPATH, '/html/body/span/span/span[1]/input')
+            eur.send_keys('EUR')
+            time.sleep(0.1)
+            
+            self.driver.find_element(By.XPATH, '/html/body/span/span/span[2]/ul/li').click()
+            time.sleep(0.2)
+            
+            timezone = self.driver.find_element(By.ID, 'timezoneCheckChecked')
+            
+            delay = self.driver.find_element(By.ID, 'delayCardCheckChecked')
+            self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", delay)
+            time.sleep(5.2)
+            timezone.click()
+            time.sleep(0.2)
+            
+            self.driver.find_element(By.XPATH, '//*[@id="settings-form"]/ul/li/div[11]/span/span[1]/span').click()
+            time.sleep(0.2)
+            
+            kiev = self.driver.find_element(By.XPATH, '/html/body/span/span/span[1]/input')
+            kiev.send_keys('EUROPE_KIEV')
+            time.sleep(0.1)
+            
+            self.driver.find_element(By.XPATH, '/html/body/span/span/span[2]/ul/li').click()
+            time.sleep(0.2)
             
         except Exception as ex:
             print('[ERROR] Ошибка при Линковки карт')
@@ -730,6 +784,22 @@ class WorkerAD(Worker):
             self.driver.close()
             self.driver.quit()
 
+    def __cards_to_string(self, cards:list):
+        """
+        Convert a list of cards to a string format with each card on a new line.
+        
+        Parameters:
+            cards (list): A list of cards to be converted to a string.
+        
+        Returns:
+            string: A string representation of the list of cards with each card on a new line.
+        """
+        string_cards = ''
+        for card in cards[:-1]:
+            string_cards += card + '\n'
+        string_cards += cards[-1]
+        return string_cards
+
 if __name__ == '__main__':
     workerad = WorkerAD()
-    workerad.link_cards_once('20.02 100.4')
+    workerad.link_cards_once('21.02 valid', ['67789769769879687', '458967584689574', '2988945879567'])
