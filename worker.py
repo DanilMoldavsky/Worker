@@ -753,15 +753,12 @@ class WorkerAD(Worker):
             self.driver.find_element(By.XPATH, '/html/body/span/span/span[2]/ul/li').click()
             time.sleep(0.2)
             
-            timezone = self.driver.find_element(By.ID, 'timezoneCheckChecked')
-            
-            delay = self.driver.find_element(By.ID, 'delayCardCheckChecked')
-            self.driver.execute_script("arguments[0].scrollIntoViewIfNeeded(true);", delay)
-            time.sleep(5.2)
+            timezone = self.driver.find_element(By.XPATH, 
+            '/html/body/div[1]/div[3]/div/div/div[5]/div/div/div[2]/div/div[1]/div[2]/div/div/form/ul/li/div[12]/div/input')
             timezone.click()
             time.sleep(0.2)
             
-            self.driver.find_element(By.XPATH, '//*[@id="settings-form"]/ul/li/div[11]/span/span[1]/span').click()
+            self.driver.find_element(By.XPATH, '//*[@id="settings-form"]/ul/li/div[12]/span/span[1]/span').click()
             time.sleep(0.2)
             
             kiev = self.driver.find_element(By.XPATH, '/html/body/span/span/span[1]/input')
@@ -770,6 +767,23 @@ class WorkerAD(Worker):
             
             self.driver.find_element(By.XPATH, '/html/body/span/span/span[2]/ul/li').click()
             time.sleep(0.2)
+            
+            delay = self.driver.find_element(By.ID, 'delayCardCheckChecked')
+            delay.click()
+            time.sleep(0.2)
+            
+            card_to = self.driver.find_element(By.ID, 'delayCardTo')
+            card_to.clear()
+            card_to.send_keys('20')
+            time.sleep(0.2)
+            
+            card_from = self.driver.find_element(By.ID, 'delayCardFrom')
+            card_from.clear()
+            card_from.send_keys('15')
+            time.sleep(0.2)
+            
+            # self.driver.find_element(By.ID, 'startLinkCardTask').click()
+            # time.sleep(20)
             
         except Exception as ex:
             print('[ERROR] Ошибка при Линковки карт')
@@ -802,4 +816,4 @@ class WorkerAD(Worker):
 
 if __name__ == '__main__':
     workerad = WorkerAD()
-    workerad.link_cards_once('21.02 valid', ['67789769769879687', '458967584689574', '2988945879567'])
+    workerad.link_cards_once('21.02 valid', ['5687967589675869;88;95;996', '5687967589675469;88;95;777', '5687977589675869;88;95;888'])
