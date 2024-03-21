@@ -100,9 +100,9 @@ def upload_accs(message):
     """
     A function to handle the 'uploadaccs' command and upload accounts to the bot's database.
     """
-    bot.send_message(message.from_user.id, 'Загрузка аккаунтов началась...')
+    bot.send_message(message.from_user.id, 'Выгрузка аккаунтов началась...')
     worker.upload_accs(conf.PATH_ACCS)
-    bot.send_message(message.from_user.id, 'Загрузка аккаунтов завершена!')
+    bot.send_message(message.from_user.id, 'Выгрузка аккаунтов завершена!')
 
 @bot.message_handler(content_types=['text'])
 def get_user_text(message):
