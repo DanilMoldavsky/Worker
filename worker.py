@@ -167,7 +167,8 @@ class Worker(Utilities):
             self._load_cookie(self.driver, 'CRM')
             time.sleep(2)
             
-            url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
+            url = 'https://crm.clickengine.net/admin/buyer/accs-fb?sort=-date_set_buyer&page=' + url_page
+            # url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
             self.driver.get(url)
             time.sleep(2)
 
@@ -219,7 +220,8 @@ class Worker(Utilities):
 
                     acc_count = 0
                     url_page = str(int(url_page) - 1)
-                    url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
+                    url = 'https://crm.clickengine.net/admin/buyer/accs-fb?sort=-date_set_buyer&page=' + url_page
+                    # url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
                     self.driver.get(url)
                     time.sleep(2)
 
