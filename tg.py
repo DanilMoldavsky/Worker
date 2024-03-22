@@ -1,4 +1,4 @@
-from worker import Worker
+from worker import Worker, WorkerAD
 import conf
 import re
 import telebot
@@ -7,6 +7,7 @@ import time
 bot = telebot.TeleBot(conf.TOKEN)
 proxy_id = conf.PROXY_ID
 worker = Worker(conf.DRIVER_CHROME, conf.CHROME)
+workerad = WorkerAD(conf.DRIVER_CHROME, conf.CHROME)
 
 
 @bot.message_handler(commands=['start'])
@@ -104,12 +105,19 @@ def upload_accs(message):
     worker.upload_accs(conf.PATH_ACCS)
     bot.send_message(message.from_user.id, 'Выгрузка аккаунтов завершена!')
 
+
+@bot.message_handler(commands=['linkcardsone'])
+def link_cards_once(message):
+    bot.send_message(message.from_user.id, '''Привязка карт к одной группе аккаунтов
+Чтобы я начал пришли мне *LabelГруппы* и карточки, каждую с новой строки''', parse_mode="Markdown")
+
+
 @bot.message_handler(content_types=['text'])
 def get_user_text(message):
     """
     A function to handle text messages from the bot and perform various actions based on the text content.
     """
-    global proxy_id, worker
+    global proxy_id, worker, workerad
     PATTERN_TAKE = r"\d \d$"
     PATTERN_CHECK = r"\d,\d"
     PATTERN_CREATE = r"^pg"
@@ -143,7 +151,14 @@ def get_user_text(message):
         
         bot.send_message(message.from_user.id, '*Фанпейджи созданы!*', parse_mode="Markdown")
         bot.send_message(message.from_user.id, errors, parse_mode="Markdown")
-
+    
+    if ';' in message.text:
+        bot.send_message(message.from_user.id, 'Я начал вязать карточки, пожалуйста подождите...')
+        card_list = message.text.split('\n')
+        errors = workerad.link_cards_once(target=card_list[0], cards=card_list[1:])
+        bot.send_message(message.from_user.id, '*Карточки привязаны!*', parse_mode="Markdown")
+        bot.send_message(message.from_user.id, errors, parse_mode="Markdown")
+        
 
 if __name__ == '__main__':
     while True:

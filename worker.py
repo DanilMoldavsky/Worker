@@ -334,7 +334,7 @@ class Worker(Utilities):
                 self.driver.find_element(By.ID, 'check-m-cookies').click()
                 time.sleep(20)
                 
-                self.__check_finish()
+                self._check_finish()
 
                 self.driver.execute_script("window.scrollTo(0, 0);")
                 chekbox_task2 = self.driver.find_element(
@@ -471,7 +471,7 @@ class Worker(Utilities):
         self.driver.find_element(By.ID, 'dropdownMenuReference').click()
         time.sleep(1)
         
-    def __check_finish(self):
+    def _check_finish(self):
         """
         Recursive function to check if the task has finished by searching for a specific log message.
         """
@@ -481,10 +481,10 @@ class Worker(Utilities):
             log_text = [x.text for x in log]
             if '[-] Task finished' not in log_text:
                 time.sleep(10)
-                self.__check_finish()
+                self._check_finish()
         except:
             time.sleep(10)
-            self.__check_finish()
+            self._check_finish()
 
     def create_pages(self, start:str, end:str, fp:int=1):
         """
@@ -535,8 +535,8 @@ class Worker(Utilities):
                         By.ID, 'startPageTask')
                     startpagetask.click()
 
-                    self.__check_finish()
-                    errors += len(self.__check_errors())
+                    self._check_finish()
+                    errors += len(self._check_errors())
                     self.driver.execute_script("window.scrollTo(0, 0);")
                     chekbox_task2 = self.driver.find_element(
                         By.XPATH, f'//div[@class="ag-full-width-container"]/div[{i}]/span/span[3]/div/div/div[2]/input')
@@ -557,7 +557,7 @@ class Worker(Utilities):
             self.driver.close()
             self.driver.quit()
 
-    def __check_errors(self):
+    def _check_errors(self):
         """
         Check for errors in the log and return the quantity of errors.
         """
@@ -677,6 +677,21 @@ class WorkerAD(Worker):
                     time.sleep(0.2)
                 break
 
+    def _check_finish(self):
+        """
+        Recursive function to check if the task has finished by searching for a specific log message.
+        """
+        try:
+            log = self.driver.find_element(By.ID, 'quill_log').find_element(
+                By.TAG_NAME, 'div').find_elements(By.TAG_NAME, 'p')
+            log_text = [x.text for x in log]
+            if '[-] Task finished. No task_ids left' not in log_text:
+                time.sleep(10)
+                self._check_finish()
+        except:
+            time.sleep(10)
+            self._check_finish()
+
     def link_cards_once(self, target:str, cards:list):
         
         self._driver_init()
@@ -782,8 +797,11 @@ class WorkerAD(Worker):
             card_from.send_keys('15')
             time.sleep(0.2)
             
-            # self.driver.find_element(By.ID, 'startLinkCardTask').click()
-            # time.sleep(20)
+            self.driver.find_element(By.ID, 'startLinkCardTask').click()
+            time.sleep(2)
+            
+            self._check_finish()
+            errors += len(self._check_errors())
             
         except Exception as ex:
             print('[ERROR] Ошибка при Линковки карт')
@@ -791,7 +809,7 @@ class WorkerAD(Worker):
                 f.write(f"\n{str(ex)}")
         else:
             print('[INFO] Ошибок нет')
-            # return f'Количество ошибок при привязке карт: *{errors}*'
+            return f'Количество ошибок при привязке карт: *{errors}*'
         finally:
             print("Линковка карт закончена")
             
@@ -813,7 +831,3 @@ class WorkerAD(Worker):
             string_cards += card + '\n'
         string_cards += cards[-1]
         return string_cards
-
-if __name__ == '__main__':
-    workerad = WorkerAD()
-    workerad.link_cards_once('21.02 valid', ['5687967589675869;88;95;996', '5687967589675469;88;95;777', '5687977589675869;88;95;888'])
