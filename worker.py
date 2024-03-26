@@ -167,8 +167,7 @@ class Worker(Utilities):
             self._load_cookie(self.driver, 'CRM')
             time.sleep(2)
             
-            url = 'https://crm.clickengine.net/admin/buyer/accs-fb?sort=-date_set_buyer&page=' + url_page
-            # url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
+            url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
             self.driver.get(url)
             time.sleep(2)
 
@@ -220,8 +219,7 @@ class Worker(Utilities):
 
                     acc_count = 0
                     url_page = str(int(url_page) - 1)
-                    url = 'https://crm.clickengine.net/admin/buyer/accs-fb?sort=-date_set_buyer&page=' + url_page
-                    # url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
+                    url = 'https://crm.clickengine.net/admin/buyer/accs-fb?page=' + url_page
                     self.driver.get(url)
                     time.sleep(2)
 
@@ -240,7 +238,7 @@ class Worker(Utilities):
             
             self.driver.close()
             self.driver.quit()
-    
+    #TODO Сделать ожидание элемента, который после загрузки в окту появляется
     def __upload_octa(self):
         """
         Uploads an octa by clicking various elements on the webpage using the self.driver.
@@ -791,12 +789,12 @@ class WorkerAD(Worker):
             
             card_to = self.driver.find_element(By.ID, 'delayCardTo')
             card_to.clear()
-            card_to.send_keys('20')
+            card_to.send_keys('25')
             time.sleep(0.2)
             
             card_from = self.driver.find_element(By.ID, 'delayCardFrom')
             card_from.clear()
-            card_from.send_keys('15')
+            card_from.send_keys('20')
             time.sleep(0.2)
             
             self.driver.find_element(By.ID, 'startLinkCardTask').click()
